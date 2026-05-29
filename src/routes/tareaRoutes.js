@@ -4,12 +4,14 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
+// Todas las rutas de tareas requieren usuario logueado o modo demo activo.
 router.get('/', ensureAuthenticated, tareaController.getTareas);
 router.get('/create', ensureAuthenticated, tareaController.getCreate);
 router.post('/create', ensureAuthenticated, tareaController.postCreate);
 router.get('/edit/:id', ensureAuthenticated, tareaController.getEdit);
 router.post('/edit/:id', ensureAuthenticated, tareaController.postEdit);
 router.get('/delete/:id', ensureAuthenticated, tareaController.delete);
+// Endpoint llamado por el JS del Kanban cuando se arrastra una tarjeta.
 router.post('/update-position', ensureAuthenticated, tareaController.updatePosition);
 
 module.exports = router;

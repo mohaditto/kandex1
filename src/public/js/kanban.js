@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const columns = document.querySelectorAll('.kanban-column');
     let draggedElement = null;
@@ -6,40 +5,41 @@ document.addEventListener('DOMContentLoaded', () => {
     columns.forEach(column => {
         column.addEventListener('dragover', (e) => {
             e.preventDefault();
-            column.style.backgroundColor = '#e9ecef';
+            column.classList.add('drag-over');
         });
 
         column.addEventListener('dragleave', () => {
-            column.style.backgroundColor = '#f8f9fa';
+            column.classList.remove('drag-over');
         });
 
         column.addEventListener('drop', (e) => {
             e.preventDefault();
-            column.style.backgroundColor = '#f8f9fa';
-            
-            if (draggedElement) {
-                const taskId = draggedElement.dataset.id;
-                const nuevoEstado = column.dataset.estado;
-                
-                // Enviar actualización al servidor
-                fetch('/tareas/update-position', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: taskId,
-                        estado: nuevoEstado,
-                        posicion: column.children.length
-                    })
-                }).then(response => response.json())
-                  .then(data => {
-                      if (data.success) {
-                          column.appendChild(draggedElement);
-                      }
-                  })
-                  .catch(err => console.error(err));
-            }
+            column.classList.remove('drag-over');
+
+            if (!draggedElement) return;
+
+            const taskId = draggedElement.dataset.id;
+            const nuevoEstado = column.dataset.estado;
+
+            // Envia al servidor el nuevo estado documentado de la tarea.
+            fetch('/tareas/update-position', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: taskId,
+                    estado: nuevoEstado,
+                    posicion: column.children.length
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        column.appendChild(draggedElement);
+                    }
+                })
+                .catch(err => console.error(err));
         });
     });
 
@@ -47,12 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
     tasks.forEach(task => {
         task.addEventListener('dragstart', () => {
             draggedElement = task;
-            task.style.opacity = '0.5';
+            task.classList.add('dragging');
         });
 
         task.addEventListener('dragend', () => {
             draggedElement = null;
-            task.style.opacity = '1';
+            task.classList.remove('dragging');
         });
     });
 });

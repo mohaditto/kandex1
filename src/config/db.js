@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 
+// Pool reutilizable: evita abrir una conexion nueva por cada consulta.
 const pool = mysql.createPool({
     host:             process.env.DB_HOST,
     port:             parseInt(process.env.DB_PORT) || 3306,
@@ -9,9 +10,9 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit:  10,
     connectTimeout:   10000,
-    acquireTimeout:   10000,
 });
 
+// Prueba temprana de conexion para mostrar en consola si MySQL esta disponible.
 pool.getConnection((err, conn) => {
     if (err) { console.error('MySQL connection error:', err.message); return; }
     console.log('Connected to MySQL');

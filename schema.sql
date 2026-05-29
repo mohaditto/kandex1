@@ -14,7 +14,7 @@ CREATE TABLE usuarios (
     nombre_usuario VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    rol ENUM('admin', 'usuario') NOT NULL DEFAULT 'usuario',
+    rol ENUM('Administrador', 'Líder', 'Miembro') NOT NULL DEFAULT 'Miembro',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_email (email),
@@ -56,7 +56,7 @@ CREATE TABLE tareas (
     equipo_id INT NOT NULL,
     titulo VARCHAR(200) NOT NULL,
     descripcion TEXT,
-    estado ENUM('Por realizar', 'En progreso', 'En revisión', 'Realizado') NOT NULL DEFAULT 'Por realizar',
+    estado ENUM('Por realizar', 'En proceso', 'Realizado') NOT NULL DEFAULT 'Por realizar',
     prioridad ENUM('Baja', 'Media', 'Alta', 'Urgente') NOT NULL DEFAULT 'Media',
     posicion INT DEFAULT 0,
     fecha_inicio DATE,
@@ -102,10 +102,10 @@ ALTER TABLE tareas ADD INDEX idx_usuario_equipo (usuario_id, equipo_id);
 
 -- Seed data
 INSERT INTO usuarios (nombre_usuario, email, password_hash, rol) VALUES
-('admin_user', 'admin@kandex.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'admin'),
-('juan_perez', 'juan@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'usuario'),
-('maria_garcia', 'maria@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'usuario'),
-('carlos_lopez', 'carlos@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'usuario');
+('admin_user', 'admin@kandex.com', '$2b$10$BxjrXkyag8fYrmKOU92iN.zu4VECJMYRjmqXH65jMrAm44QdLHp62', 'Administrador'),
+('juan_perez', 'juan@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'Líder'),
+('maria_garcia', 'maria@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'Miembro'),
+('carlos_lopez', 'carlos@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gZvQm2', 'Miembro');
 
 INSERT INTO equipos (nombre_equipo, descripcion) VALUES
 ('Equipo Frontend', 'Encargado del desarrollo de la interfaz de usuario'),
@@ -121,11 +121,11 @@ INSERT INTO etiquetas (nombre, color) VALUES
 ('Documentación', '#f59e0b'), ('Testing', '#8b5cf6'), ('Bloqueada', '#64748b');
 
 INSERT INTO tareas (usuario_id, equipo_id, titulo, descripcion, estado, prioridad, posicion, fecha_inicio, fecha_limite) VALUES
-(2, 1, 'Implementar dashboard', 'Crear interfaz del dashboard principal', 'En progreso', 'Alta', 1, '2026-05-01', '2026-05-15'),
+(2, 1, 'Implementar dashboard', 'Crear interfaz del dashboard principal', 'En proceso', 'Alta', 1, '2026-05-01', '2026-05-15'),
 (3, 1, 'Corregir bugs de validación', 'Arreglar validaciones en formulario de registro', 'Por realizar', 'Media', 2, '2026-05-08', '2026-05-12'),
-(2, 2, 'API de autenticación', 'Implementar endpoints de login y registro', 'En revisión', 'Alta', 1, '2026-04-28', '2026-05-10'),
+(2, 2, 'API de autenticación', 'Implementar endpoints de login y registro', 'En proceso', 'Alta', 1, '2026-04-28', '2026-05-10'),
 (4, 2, 'Optimizar queries', 'Mejorar performance de las queries principales', 'Por realizar', 'Media', 2, '2026-05-08', '2026-05-20'),
-(3, 3, 'Testing de API', 'Realizar pruebas unitarias e integración', 'En progreso', 'Alta', 1, '2026-05-01', '2026-05-15');
+(3, 3, 'Testing de API', 'Realizar pruebas unitarias e integración', 'En proceso', 'Alta', 1, '2026-05-01', '2026-05-15');
 
 INSERT INTO comentarios (tarea_id, usuario_id, contenido) VALUES
 (1, 2, 'Iniciando con el layout principal'),

@@ -1,81 +1,48 @@
 <div class="hero-section mb-5">
-    <h1><i class="bi bi-kanban"></i> Bienvenido a Kandex</h1>
+    <h1>Bienvenido a Kandex</h1>
     <p>Organiza tus tareas de manera eficiente con nuestro tablero Kanban</p>
-    <a href="/tareas" class="btn btn-light btn-lg btn-custom"><i class="bi bi-plus-circle"></i> Ver Mis Tareas</a>
+    <a href="/tareas" class="btn btn-primary btn-lg btn-custom">Ver Mis Tareas</a>
 </div>
 
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="stats-card">
-            <i class="bi bi-check-circle-fill fs-1 mb-2"></i>
             <h2><%= tareas.filter(t => t.estado === 'Realizado').length %></h2>
             <p>Tareas Completadas</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="stats-card">
-            <i class="bi bi-clock-fill fs-1 mb-2"></i>
             <h2><%= tareas.filter(t => t.estado === 'En proceso').length %></h2>
-            <p>En Progreso</p>
+            <p>En Proceso</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="stats-card">
-            <i class="bi bi-list-task fs-1 mb-2"></i>
             <h2><%= tareas.length %></h2>
             <p>Total de Tareas</p>
         </div>
     </div>
 </div>
 
-<h2 class="text-center mb-4 text-white"><i class="bi bi-grid-3x3-gap"></i> Tu Tablero Kanban</h2>
+<h2 class="section-title text-center mb-4">Tu Tablero Kanban</h2>
 <div class="row">
-    <div class="col-md-4">
-        <h3 class="text-center mb-3"><i class="bi bi-play-circle"></i> Por realizar</h3>
-        <div id="por-realizar" class="kanban-column" data-estado="Por realizar">
-            <% tareas.filter(t => t.estado === 'Por realizar').forEach(tarea => { %>
-                <div class="task-card" draggable="true" data-id="<%= tarea.id %>">
-                    <h5><i class="bi bi-card-text"></i> <%= tarea.titulo %></h5>
-                    <p><%= tarea.descripcion %></p>
-                    <span class="badge priority-badge priority-<%= tarea.prioridad %>"><%= tarea.prioridad %></span>
-                    <div class="mt-2">
-                        <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-outline-light me-1"><i class="bi bi-pencil"></i></a>
-                        <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+    <% estadosTarea.forEach(estado => { %>
+        <div class="col-md-4">
+            <h3 class="column-title text-center mb-3"><%= estado.nombre %></h3>
+            <div id="<%= estado.id %>" class="kanban-column" data-estado="<%= estado.nombre %>">
+                <% tareas.filter(t => t.estado === estado.nombre).forEach(tarea => { %>
+                    <div class="task-card" draggable="true" data-id="<%= tarea.id %>">
+                        <h5><%= tarea.titulo %></h5>
+                        <p><%= tarea.descripcion %></p>
+                        <span class="badge priority-badge priority-<%= tarea.prioridad %>"><%= tarea.prioridad %></span>
+                        <div class="mt-2">
+                            <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-primary me-1">Editar</a>
+                            <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-danger">Eliminar</a>
+                        </div>
                     </div>
-                </div>
-            <% }); %>
+                <% }); %>
+            </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <h3 class="text-center mb-3"><i class="bi bi-arrow-repeat"></i> En proceso</h3>
-        <div id="en-proceso" class="kanban-column" data-estado="En proceso">
-            <% tareas.filter(t => t.estado === 'En proceso').forEach(tarea => { %>
-                <div class="task-card" draggable="true" data-id="<%= tarea.id %>">
-                    <h5><i class="bi bi-card-text"></i> <%= tarea.titulo %></h5>
-                    <p><%= tarea.descripcion %></p>
-                    <span class="badge priority-badge priority-<%= tarea.prioridad %>"><%= tarea.prioridad %></span>
-                    <div class="mt-2">
-                        <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-outline-dark me-1"><i class="bi bi-pencil"></i></a>
-                        <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
-                    </div>
-                </div>
-            <% }); %>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <h3 class="text-center mb-3"><i class="bi bi-check-circle"></i> Realizado</h3>
-        <div id="realizado" class="kanban-column" data-estado="Realizado">
-            <% tareas.filter(t => t.estado === 'Realizado').forEach(tarea => { %>
-                <div class="task-card" draggable="true" data-id="<%= tarea.id %>">
-                    <h5><i class="bi bi-card-text"></i> <%= tarea.titulo %></h5>
-                    <p><%= tarea.descripcion %></p>
-                    <span class="badge priority-badge priority-<%= tarea.prioridad %>"><%= tarea.prioridad %></span>
-                    <div class="mt-2">
-                        <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-outline-light me-1"><i class="bi bi-pencil"></i></a>
-                        <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
-                    </div>
-                </div>
-            <% }); %>
-        </div>
-    </div>
+    <% }); %>
 </div>

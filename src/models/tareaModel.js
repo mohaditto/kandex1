@@ -46,12 +46,17 @@ class Tarea {
     }
 
     static async findByLeader(usuario_id) {
+        // El líder ve todas las tareas de los equipos donde es miembro
         const [rows] = await db.promise().query(
-            `SELECT DISTINCT t.*
+            `SELECT t.*, 
+                    u.nombre_usuario as usuario_nombre,
+                    e.nombre_equipo
              FROM tareas t
-             JOIN equipo_usuarios eu ON eu.equipo_id = t.equipo_id
+             INNER JOIN equipo_usuarios eu ON eu.equipo_id = t.equipo_id
+             LEFT JOIN usuarios u ON u.id = t.usuario_id
+             LEFT JOIN equipos e ON e.id = t.equipo_id
              WHERE eu.usuario_id = ?
-             ORDER BY t.estado, t.posicion`,
+             ORDER BY t.estado, t.posicion, t.id DESC`,
             [usuario_id]
         );
         return normalizeRows(rows);

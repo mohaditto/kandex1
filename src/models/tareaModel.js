@@ -10,15 +10,10 @@ function normalizeRows(rows) {
 
 async function queryWithLegacyEstadoFallback(query, params, estadoIndex) {
     try {
-        return await db.promise().query(query, params);
+        const [result] = await db.promise().query(query, params);
+        return [result];
     } catch (err) {
-        const isEnumMismatch = ['ER_TRUNCATED_WRONG_VALUE_FOR_FIELD', 'WARN_DATA_TRUNCATED', 'ER_WARN_DATA_TRUNCATED'].includes(err.code)
-            || String(err.message || '').includes("Data truncated for column 'estado'");
-        if (params[estadoIndex] === 'En proceso' && isEnumMismatch) {
-            const fallbackParams = [...params];
-            fallbackParams[estadoIndex] = 'En progreso';
-            return db.promise().query(query, fallbackParams);
-        }
+        console.error('Error en query:', err.message, 'Params:', params);
         throw err;
     }
 }

@@ -1,6 +1,9 @@
 <h1 class="mb-4">Tablero Kanban</h1>
 <a href="/tareas/create" class="btn btn-success mb-3">Nueva Tarea</a>
 
+<!-- Contenedor de notificaciones -->
+<div id="notificaciones" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;"></div>
+
 <div class="row">
     <% estadosTarea.forEach(estado => { %>
         <div class="col-md-4">

@@ -5,39 +5,41 @@
                 <h2 class="text-center">Editar Tarea</h2>
             </div>
             <div class="card-body">
+                <% if (typeof alert !== 'undefined' && alert) { %>
+                    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+                <% } %>
                 <form action="/tareas/edit/<%= tarea.id %>" method="POST">
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título</label>
-                        <input type="text" class="form-control" id="titulo" name="titulo" value="<%= tarea.titulo %>" required>
+                        <input type="text" class="form-control" id="titulo" name="titulo" value="<%= tarea.titulo || '' %>" required maxlength="200">
                     </div>
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4"><%= tarea.descripcion %></textarea>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" maxlength="1000" required><%= tarea.descripcion || '' %></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="estado" class="form-label">Estado</label>
-                        <select class="form-select" id="estado" name="estado">
-                            <option value="Por realizar" <%= tarea.estado === 'Por realizar' ? 'selected' : '' %>>Por realizar</option>
-                            <option value="En proceso" <%= tarea.estado === 'En proceso' ? 'selected' : '' %>>En proceso</option>
-                            <option value="Realizado" <%= tarea.estado === 'Realizado' ? 'selected' : '' %>>Realizado</option>
+                        <select class="form-select" id="estado" name="estado" required>
+                            <% estadosTarea.forEach(estado => { %>
+                                <option value="<%= estado.nombre %>" <%= tarea.estado === estado.nombre ? 'selected' : '' %>><%= estado.nombre %></option>
+                            <% }); %>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="prioridad" class="form-label">Prioridad</label>
-                        <select class="form-select" id="prioridad" name="prioridad">
-                            <option value="Baja" <%= tarea.prioridad === 'Baja' ? 'selected' : '' %>>Baja</option>
-                            <option value="Media" <%= tarea.prioridad === 'Media' ? 'selected' : '' %>>Media</option>
-                            <option value="Alta" <%= tarea.prioridad === 'Alta' ? 'selected' : '' %>>Alta</option>
-                            <option value="Urgente" <%= tarea.prioridad === 'Urgente' ? 'selected' : '' %>>Urgente</option>
+                        <select class="form-select" id="prioridad" name="prioridad" required>
+                            <% ['Baja', 'Media', 'Alta', 'Urgente'].forEach(prioridad => { %>
+                                <option value="<%= prioridad %>" <%= tarea.prioridad === prioridad ? 'selected' : '' %>><%= prioridad %></option>
+                            <% }); %>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
-                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value="<%= tarea.fecha_inicio ? tarea.fecha_inicio.toISOString().split('T')[0] : '' %>">
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value="<%= tarea.fecha_inicio ? new Date(tarea.fecha_inicio).toISOString().slice(0, 10) : '' %>">
                     </div>
                     <div class="mb-3">
                         <label for="fecha_limite" class="form-label">Fecha Límite</label>
-                        <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="<%= tarea.fecha_limite ? tarea.fecha_limite.toISOString().split('T')[0] : '' %>">
+                        <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="<%= tarea.fecha_limite ? new Date(tarea.fecha_limite).toISOString().slice(0, 10) : '' %>">
                     </div>
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                     <a href="/tareas" class="btn btn-secondary">Cancelar</a>

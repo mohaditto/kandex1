@@ -1,8 +1,14 @@
 const Tarea = require('../models/tareaModel');
+const { normalizeRole } = require('../middlewares/roleMiddleware');
+
+async function tareasParaReporte(user) {
+    const role = normalizeRole(user.rol);
+    return role === 'Administrador' ? Tarea.findAll() : Tarea.findByLeader(user.id);
+}
 
 exports.index = async (req, res) => {
     try {
-        const tareas = await Tarea.findByUser(req.user.id);
+        const tareas = await tareasParaReporte(req.user);
         const completadas = tareas.filter(t => t.estado === 'Realizado');
         
         // Calcular tiempos
@@ -33,7 +39,7 @@ exports.index = async (req, res) => {
 exports.filtrarPorFecha = async (req, res) => {
     try {
         const { fecha_inicio, fecha_fin } = req.query;
-        const tareas = await Tarea.findByUser(req.user.id);
+        const tareas = await tareasParaReporte(req.user);
         
         const filtradas = tareas.filter(t => {
             if (t.estado === 'Realizado') {

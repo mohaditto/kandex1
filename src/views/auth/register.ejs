@@ -5,18 +5,21 @@
                 <h2 class="mb-0">Registro</h2>
             </div>
             <div class="card-body p-4">
+                <% if (alert) { %>
+                    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+                <% } %>
                 <form action="/auth/register" method="POST">
                     <div class="mb-3">
                         <label for="nombre_usuario" class="form-label">Nombre de Usuario</label>
-                        <input type="text" class="form-control form-control-lg" id="nombre_usuario" name="nombre_usuario" required placeholder="Tu nombre">
+                        <input type="text" class="form-control form-control-lg" id="nombre_usuario" name="nombre_usuario" required maxlength="100" placeholder="Tu nombre" value="<%= form.nombre_usuario || '' %>">
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email" required placeholder="tu@email.com">
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" required maxlength="100" placeholder="tu@email.com" value="<%= form.email || '' %>">
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control form-control-lg" id="password" name="password" required placeholder="********">
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" required minlength="8" placeholder="********">
                     </div>
                     <button type="submit" class="btn btn-success btn-lg w-100 mb-3">Registrarse</button>
                 </form>

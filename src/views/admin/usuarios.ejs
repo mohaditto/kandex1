@@ -1,0 +1,35 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Administración de Usuarios</h1>
+    <a href="/admin/tareas" class="btn btn-outline-primary">Ver Tareas Globales</a>
+</div>
+
+<% if (alert) { %>
+    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+<% } %>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Equipos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% usuarios.forEach(usuario => { %>
+                <tr>
+                    <td><%= usuario.nombre_usuario %></td>
+                    <td><%= usuario.email %></td>
+                    <td><%= usuario.rol %></td>
+                    <td><%= usuario.equipos || 'Sin equipos' %></td>
+                    <td>
+                        <a href="/admin/usuarios/<%= usuario.id %>/edit" class="btn btn-sm btn-primary">Editar</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

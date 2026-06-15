@@ -14,6 +14,18 @@ class Equipo {
         return rows;
     }
 
+    static async findByUser(usuario_id) {
+        const [rows] = await db.promise().query(
+            `SELECT e.*
+             FROM equipos e
+             JOIN equipo_usuarios eu ON eu.equipo_id = e.id
+             WHERE eu.usuario_id = ?
+             ORDER BY e.nombre_equipo`,
+            [usuario_id]
+        );
+        return rows;
+    }
+
     static async findById(id) {
         const [rows] = await db.promise().query('SELECT * FROM equipos WHERE id = ?', [id]);
         return rows[0];
@@ -21,9 +33,24 @@ class Equipo {
 
     static async addUser(equipo_id, usuario_id) {
         await db.promise().query(
-            'INSERT INTO equipo_usuarios (equipo_id, usuario_id) VALUES (?, ?)',
+            'INSERT IGNORE INTO equipo_usuarios (equipo_id, usuario_id) VALUES (?, ?)',
             [equipo_id, usuario_id]
         );
+    }
+
+    static async removeUser(equipo_id, usuario_id) {
+        await db.promise().query(
+            'DELETE FROM equipo_usuarios WHERE equipo_id = ? AND usuario_id = ?',
+            [equipo_id, usuario_id]
+        );
+    }
+
+    static async getTeamsByUser(usuario_id) {
+        const [rows] = await db.promise().query(
+            'SELECT e.* FROM equipos e JOIN equipo_usuarios eu ON e.id = eu.equipo_id WHERE eu.usuario_id = ? ORDER BY e.nombre_equipo',
+            [usuario_id]
+        );
+        return rows;
     }
 
     static async getUsersByTeam(equipo_id) {

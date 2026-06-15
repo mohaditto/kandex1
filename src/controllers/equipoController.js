@@ -1,10 +1,10 @@
 const Equipo = require('../models/equipoModel');
-const { ensureAuthenticated } = require('../middlewares/authMiddleware');
-const { requireRole } = require('../middlewares/roleMiddleware');
+const { normalizeRole } = require('../middlewares/roleMiddleware');
 
 exports.index = async (req, res) => {
     try {
-        const equipos = await Equipo.findAll();
+        const role = normalizeRole(req.user.rol);
+        const equipos = role === 'Administrador' ? await Equipo.findAll() : await Equipo.findByUser(req.user.id);
         res.render('equipos/index', { equipos, user: req.user });
     } catch (err) {
         console.error(err);
@@ -18,7 +18,10 @@ exports.getCreate = (req, res) => {
 
 exports.postCreate = async (req, res) => {
     try {
-        const { nombre_equipo, descripcion } = req.body;
+        const nombre_equipo = (req.body.nombre_equipo || '').trim();
+        const descripcion = (req.body.descripcion || '').trim();
+        if (!nombre_equipo) return res.redirect('/equipos/create');
+
         const equipoId = await Equipo.create({ nombre_equipo, descripcion });
         await Equipo.addUser(equipoId, req.user.id);
         res.redirect('/equipos');
@@ -31,7 +34,13 @@ exports.postCreate = async (req, res) => {
 exports.detail = async (req, res) => {
     try {
         const equipo = await Equipo.findById(req.params.id);
+        if (!equipo) return res.redirect('/equipos');
+
         const usuarios = await Equipo.getUsersByTeam(req.params.id);
+        const role = normalizeRole(req.user.rol);
+        const pertenece = usuarios.some(usuario => usuario.id === req.user.id);
+        if (role !== 'Administrador' && !pertenece) return res.status(403).send('Acceso denegado');
+
         res.render('equipos/detalle', { equipo, usuarios, user: req.user });
     } catch (err) {
         console.error(err);
@@ -41,6 +50,12 @@ exports.detail = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
+        const role = normalizeRole(req.user.rol);
+        if (role !== 'Administrador') {
+            const usuarios = await Equipo.getUsersByTeam(req.params.id);
+            const pertenece = usuarios.some(usuario => usuario.id === req.user.id);
+            if (!pertenece) return res.status(403).send('Acceso denegado');
+        }
         await Equipo.delete(req.params.id);
         res.redirect('/equipos');
     } catch (err) {

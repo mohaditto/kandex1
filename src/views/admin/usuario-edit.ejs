@@ -1,0 +1,79 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Editar Usuario</h1>
+    <a href="/admin/usuarios" class="btn btn-secondary">Volver</a>
+</div>
+
+<% if (alert) { %>
+    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+<% } %>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Información y rol</h2>
+            </div>
+            <div class="card-body">
+                <form action="/admin/usuarios/<%= usuario.id %>/edit" method="POST">
+                    <div class="mb-3">
+                        <label for="nombre_usuario" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="<%= usuario.nombre_usuario %>" required maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<%= usuario.email %>" required maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="rol" class="form-label">Rol</label>
+                        <select class="form-select" id="rol" name="rol" required>
+                            <% roles.forEach(rol => { %>
+                                <option value="<%= rol %>" <%= usuario.rol === rol ? 'selected' : '' %>><%= rol %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Equipos del usuario</h2>
+            </div>
+            <div class="card-body">
+                <form action="/admin/usuarios/<%= usuario.id %>/equipos" method="POST" class="row g-2 mb-3">
+                    <div class="col">
+                        <select class="form-select" name="equipo_id" required>
+                            <option value="">Seleccionar equipo</option>
+                            <% equipos.forEach(equipo => { %>
+                                <% if (!equiposUsuarioIds.has(equipo.id)) { %>
+                                    <option value="<%= equipo.id %>"><%= equipo.nombre_equipo %></option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-success">Agregar</button>
+                    </div>
+                </form>
+
+                <% if (equiposUsuario.length === 0) { %>
+                    <p class="text-muted mb-0">El usuario no pertenece a ningún equipo.</p>
+                <% } else { %>
+                    <div class="list-group">
+                        <% equiposUsuario.forEach(equipo => { %>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><%= equipo.nombre_equipo %></span>
+                                <form action="/admin/usuarios/<%= usuario.id %>/equipos/<%= equipo.id %>/delete" method="POST" class="mb-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Quitar</button>
+                                </form>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

@@ -5,31 +5,41 @@
                 <h2 class="text-center">Crear Nueva Tarea</h2>
             </div>
             <div class="card-body">
+                <% if (typeof alert !== 'undefined' && alert) { %>
+                    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+                <% } %>
                 <form action="/tareas/create" method="POST">
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título</label>
-                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required maxlength="200" value="<%= typeof form !== 'undefined' ? (form.titulo || '') : '' %>">
                     </div>
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4" maxlength="1000" required><%= typeof form !== 'undefined' ? (form.descripcion || '') : '' %></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="prioridad" class="form-label">Prioridad</label>
-                        <select class="form-select" id="prioridad" name="prioridad">
-                            <option value="Baja">Baja</option>
-                            <option value="Media" selected>Media</option>
-                            <option value="Alta">Alta</option>
-                            <option value="Urgente">Urgente</option>
+                        <select class="form-select" id="prioridad" name="prioridad" required>
+                            <% ['Baja', 'Media', 'Alta', 'Urgente'].forEach(prioridad => { %>
+                                <option value="<%= prioridad %>" <%= (typeof form !== 'undefined' ? (form.prioridad || 'Media') : 'Media') === prioridad ? 'selected' : '' %>><%= prioridad %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="equipo_id" class="form-label">Equipo</label>
+                        <select class="form-select" id="equipo_id" name="equipo_id" required>
+                            <% equipos.forEach(equipo => { %>
+                                <option value="<%= equipo.id %>" <%= String(typeof form !== 'undefined' ? (form.equipo_id || '') : '') === String(equipo.id) ? 'selected' : '' %>><%= equipo.nombre_equipo %></option>
+                            <% }); %>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
-                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
+                        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value="<%= typeof form !== 'undefined' ? (form.fecha_inicio || '') : '' %>">
                     </div>
                     <div class="mb-3">
                         <label for="fecha_limite" class="form-label">Fecha Límite</label>
-                        <input type="date" class="form-control" id="fecha_limite" name="fecha_limite">
+                        <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="<%= typeof form !== 'undefined' ? (form.fecha_limite || '') : '' %>">
                     </div>
                     <button type="submit" class="btn btn-success">Crear Tarea</button>
                     <a href="/tareas" class="btn btn-secondary">Cancelar</a>

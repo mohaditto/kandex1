@@ -12,11 +12,14 @@
                     <h2 class="h4 mb-1">Iniciar Sesión</h2>
                     <p class="text-muted mb-0">Accede a tu tablero y comienza a gestionar tu trabajo.</p>
                 </div>
+                <% if (typeof alert !== 'undefined' && alert) { %>
+                    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+                <% } %>
 
                 <form action="/auth/login" method="POST">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email" required placeholder="tu@email.com">
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" required maxlength="100" placeholder="tu@email.com" value="<%= typeof form !== 'undefined' ? (form.email || '') : '' %>">
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label">Contraseña</label>

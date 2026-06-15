@@ -1,11 +1,11 @@
 const express = require('express');
 const reporteController = require('../controllers/reporteController');
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
+const { requireAnyRole } = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
-// Reportes generales y filtro por fechas.
-router.get('/', ensureAuthenticated, reporteController.index);
-router.get('/filtrar', ensureAuthenticated, reporteController.filtrarPorFecha);
+router.get('/', ensureAuthenticated, requireAnyRole('Administrador', 'Líder'), reporteController.index);
+router.get('/filtrar', ensureAuthenticated, requireAnyRole('Administrador', 'Líder'), reporteController.filtrarPorFecha);
 
 module.exports = router;

@@ -4,7 +4,6 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-// Todas las rutas de tareas requieren usuario logueado o modo demo activo.
 router.get('/', ensureAuthenticated, tareaController.getTareas);
 router.get('/create', ensureAuthenticated, tareaController.getCreate);
 router.post('/create', ensureAuthenticated, tareaController.postCreate);

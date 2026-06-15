@@ -5,5 +5,13 @@ const ESTADOS_TAREA = [
 ];
 
 const ESTADOS_TAREA_VALIDOS = ESTADOS_TAREA.map(estado => estado.nombre);
+const ESTADOS_LEGACY = {
+    'En progreso': 'En proceso',
+    'En revisión': 'En proceso',
+};
 
-module.exports = { ESTADOS_TAREA, ESTADOS_TAREA_VALIDOS };
+function normalizarEstado(estado) {
+    return ESTADOS_LEGACY[estado] || estado;
+}
+
+module.exports = { ESTADOS_TAREA, ESTADOS_TAREA_VALIDOS, normalizarEstado };

@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Tareas Globales</h1>
+    <a href="/admin/usuarios" class="btn btn-outline-primary">Ver Usuarios</a>
+</div>
+
+<% if (alert) { %>
+    <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
+<% } %>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Tarea</th>
+                <th>Estado</th>
+                <th>Prioridad</th>
+                <th>Usuario</th>
+                <th>Equipo</th>
+                <th>Fecha límite</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% tareas.forEach(tarea => { %>
+                <tr>
+                    <td>
+                        <strong><%= tarea.titulo %></strong>
+                        <div class="text-muted small"><%= tarea.descripcion %></div>
+                    </td>
+                    <td><%= tarea.estado %></td>
+                    <td><%= tarea.prioridad %></td>
+                    <td><%= tarea.nombre_usuario || 'Sin usuario' %><br><span class="text-muted small"><%= tarea.email || '' %></span></td>
+                    <td><%= tarea.nombre_equipo || 'Sin equipo' %></td>
+                    <td><%= tarea.fecha_limite ? new Date(tarea.fecha_limite).toISOString().slice(0, 10) : 'Sin fecha' %></td>
+                    <td>
+                        <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-primary">Editar</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

@@ -1,16 +1,16 @@
 <div class="login-page">
     <div class="login-panel">
         <div class="login-brand text-center mb-4">
-            <div class="login-logo">K</div>
+            <div class="logo-box"><i class="bi bi-kanban-fill"></i></div>
             <h1 class="h3 mb-2">Bienvenido a Kandex</h1>
-            <p class="text-muted mb-0">Organiza tus tareas y equipos con un panel claro y centralizado.</p>
+            <p>Gestiona tus tareas y equipos con un panel claro y centralizado</p>
         </div>
 
         <div class="card login-card shadow-lg border-0">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <h2 class="h4 mb-1">Iniciar Sesión</h2>
-                    <p class="text-muted mb-0">Accede a tu tablero y comienza a gestionar tu trabajo.</p>
+                    <p class="text-muted mb-0">Accede a tu tablero y comienza a gestionar tus tareas</p>
                 </div>
                 <% if (typeof alert !== 'undefined' && alert) { %>
                     <div class="alert alert-<%= alert.type %>" role="alert"><%= alert.message %></div>
@@ -25,7 +25,9 @@
                         <label for="password" class="form-label">Contraseña</label>
                         <input type="password" class="form-control form-control-lg" id="password" name="password" required placeholder="********">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-login w-100 mb-3">Iniciar Sesión</button>
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                    </button>
                 </form>
             </div>
             <div class="card-footer text-center bg-transparent border-top px-4 py-3">

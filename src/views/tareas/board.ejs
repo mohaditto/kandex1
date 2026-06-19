@@ -1,5 +1,11 @@
-<h1 class="mb-4">Tablero Kanban</h1>
-<a href="/tareas/create" class="btn btn-success mb-3">Nueva Tarea</a>
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+    <h1 style="font-size:1.3rem;font-weight:700;letter-spacing:-.03em;">
+        <i class="bi bi-kanban-fill me-2" style="color:#6366f1;"></i>Mi Tablero Kanban
+    </h1>
+    </div>
+    <a href="/tareas/create" class="btn-new"><i class="bi bi-plus"></i>Nueva Tarea</a>
+</div>
 
 <!-- Contenedor de notificaciones -->
 <div id="notificaciones" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;"></div>
@@ -7,16 +13,16 @@
 <div class="row">
     <% estadosTarea.forEach(estado => { %>
         <div class="col-md-4">
-            <h3 class="text-center mb-3"><%= estado.nombre %></h3>
             <div id="<%= estado.id %>" class="kanban-column" data-estado="<%= estado.nombre %>">
+                <h3 class="col-lbl"><%= estado.nombre %></h3>
                 <% tareas.filter(t => t.estado === estado.nombre).forEach(tarea => { %>
                     <div class="task-card" draggable="true" data-id="<%= tarea.id %>">
                         <h5><%= tarea.titulo %></h5>
                         <p><%= tarea.descripcion %></p>
-                        <small class="text-muted">Prioridad: <%= tarea.prioridad %></small>
+                        <span class="badge priority-badge priority-<%= tarea.prioridad %>"><%= tarea.prioridad %></span>
                         <div class="mt-2">
-                            <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-primary">Editar</a>
-                            <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-danger">Eliminar</a>
+                            <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
                         </div>
                     </div>
                 <% }); %>

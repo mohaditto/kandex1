@@ -9,7 +9,8 @@ exports.index = async (req, res) => {
         res.render('equipos/index', { equipos, user: req.user });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al obtener equipos');
+        req.session.notification = { type: 'danger', message: 'Error al obtener equipos. Por favor intenta de nuevo.' };
+        res.redirect('/tareas');
     }
 };
 
@@ -46,7 +47,10 @@ exports.detail = async (req, res) => {
             // Admin puede ver cualquier equipo
         } else if (role === 'Líder' || (role === 'Miembro' && !pertenece)) {
             // Líder puede ver su equipo, miembro solo si pertenece
-            if (!pertenece) return res.status(403).send('Acceso denegado');
+            if (!pertenece) {
+                req.session.notification = { type: 'danger', message: 'Acceso denegado: No tienes permiso para ver este equipo.' };
+                return res.redirect('/equipos');
+            }
         }
 
         // Obtener lista de usuarios disponibles para agregar (todos excepto los ya en el equipo)
@@ -60,7 +64,8 @@ exports.detail = async (req, res) => {
         res.render('equipos/detalle', { equipo, usuarios, usuariosDisponibles, user: req.user });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al obtener equipo');
+        req.session.notification = { type: 'danger', message: 'Error al obtener el equipo. Por favor intenta de nuevo.' };
+        res.redirect('/equipos');
     }
 };
 
@@ -75,7 +80,10 @@ exports.addUser = async (req, res) => {
         if (role !== 'Administrador') {
             const usuarios = await Equipo.getUsersByTeam(equipoId);
             const esLider = usuarios.some(usuario => usuario.id === req.user.id && normalizeRole(usuario.rol) === 'Líder');
-            if (!esLider) return res.status(403).send('Acceso denegado');
+            if (!esLider) {
+                req.session.notification = { type: 'danger', message: 'Acceso denegado: Solo el líder puede agregar usuarios a este equipo.' };
+                return res.redirect(`/equipos/${equipoId}`);
+            }
         }
 
         if (!usuarioId) {
@@ -86,7 +94,8 @@ exports.addUser = async (req, res) => {
         res.redirect(`/equipos/${equipoId}`);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al agregar usuario');
+        req.session.notification = { type: 'danger', message: 'Error al agregar el usuario. Por favor intenta de nuevo.' };
+        res.redirect(`/equipos/${equipoId}`);
     }
 };
 
@@ -101,14 +110,18 @@ exports.removeUser = async (req, res) => {
         if (role !== 'Administrador') {
             const usuarios = await Equipo.getUsersByTeam(equipoId);
             const esLider = usuarios.some(usuario => usuario.id === req.user.id && normalizeRole(usuario.rol) === 'Líder');
-            if (!esLider) return res.status(403).send('Acceso denegado');
+            if (!esLider) {
+                req.session.notification = { type: 'danger', message: 'Acceso denegado: Solo el líder puede eliminar usuarios de este equipo.' };
+                return res.redirect(`/equipos/${equipoId}`);
+            }
         }
 
         await Equipo.removeUser(equipoId, usuarioId);
         res.redirect(`/equipos/${equipoId}`);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al eliminar usuario');
+        req.session.notification = { type: 'danger', message: 'Error al eliminar el usuario. Por favor intenta de nuevo.' };
+        res.redirect(`/equipos/${equipoId}`);
     }
 };
 
@@ -118,12 +131,16 @@ exports.delete = async (req, res) => {
         if (role !== 'Administrador') {
             const usuarios = await Equipo.getUsersByTeam(req.params.id);
             const pertenece = usuarios.some(usuario => usuario.id === req.user.id);
-            if (!pertenece) return res.status(403).send('Acceso denegado');
+            if (!pertenece) {
+                req.session.notification = { type: 'danger', message: 'Acceso denegado: No tienes permiso para eliminar este equipo.' };
+                return res.redirect('/equipos');
+            }
         }
         await Equipo.delete(req.params.id);
         res.redirect('/equipos');
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al eliminar equipo');
+        req.session.notification = { type: 'danger', message: 'Error al eliminar el equipo. Por favor intenta de nuevo.' };
+        res.redirect('/equipos');
     }
 };

@@ -46,6 +46,15 @@ async function equiposDisponibles(user) {
 exports.getTareas = async (req, res) => {
     try {
         const tareas = await tareasVisibles(req.user);
+        const view = req.query.view || 'board'; // board, list, table
+        
+        if (view === 'list') {
+            return res.render('tareas/list', { tareas, user: req.user, estadosTarea: ESTADOS_TAREA });
+        } else if (view === 'table') {
+            return res.render('tareas/table', { tareas, user: req.user, estadosTarea: ESTADOS_TAREA });
+        }
+        
+        // Vista por defecto: board (Kanban)
         res.render('tareas/board', { tareas, user: req.user, estadosTarea: ESTADOS_TAREA });
     } catch (err) {
         console.error(err);
@@ -100,7 +109,13 @@ exports.getEdit = async (req, res) => {
     try {
         const tarea = await Tarea.findById(req.params.id);
         if (!tarea) return res.redirect('/tareas');
-        if (!(await Tarea.canAccess(req.params.id, req.user))) return res.status(403).send('Acceso denegado');
+        if (!(await Tarea.canAccess(req.params.id, req.user))) {
+            req.session.notification = {
+                type: 'danger',
+                message: 'No tienes permiso para editar esta tarea.'
+            };
+            return res.redirect('/tareas');
+        }
         res.render('tareas/edit', { tarea, user: req.user, alert: null });
     } catch (err) {
         console.error(err);
@@ -110,7 +125,13 @@ exports.getEdit = async (req, res) => {
 
 exports.postEdit = async (req, res) => {
     try {
-        if (!(await Tarea.canAccess(req.params.id, req.user))) return res.status(403).send('Acceso denegado');
+        if (!(await Tarea.canAccess(req.params.id, req.user))) {
+            req.session.notification = {
+                type: 'danger',
+                message: 'No tienes permiso para editar esta tarea.'
+            };
+            return res.redirect('/tareas');
+        }
 
         const data = cleanTaskInput(req.body);
         const validationError = validateTaskInput(data, { requireEstado: true });
@@ -128,7 +149,13 @@ exports.postEdit = async (req, res) => {
 
 exports.delete = async (req, res) => {
     try {
-        if (!(await Tarea.canAccess(req.params.id, req.user))) return res.status(403).send('Acceso denegado');
+        if (!(await Tarea.canAccess(req.params.id, req.user))) {
+            req.session.notification = {
+                type: 'danger',
+                message: 'No tienes permiso para eliminar esta tarea.'
+            };
+            return res.redirect('/tareas');
+        }
         await Tarea.delete(req.params.id);
         res.redirect('/tareas');
     } catch (err) {
@@ -151,5 +178,26 @@ exports.updatePosition = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Error al mover la tarea.' });
+    }
+};
+
+exports.updateEstado = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado } = req.body;
+
+        if (!ESTADOS_TAREA_VALIDOS.includes(estado)) {
+            return res.status(400).json({ success: false, message: 'Estado inválido.' });
+        }
+
+        if (!(await Tarea.canView(id, req.user))) {
+            return res.status(403).json({ success: false, message: 'No tienes permiso para actualizar esta tarea.' });
+        }
+
+        await Tarea.updateEstado(id, estado);
+        res.json({ success: true, message: 'Estado actualizado correctamente.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Error al actualizar el estado.' });
     }
 };

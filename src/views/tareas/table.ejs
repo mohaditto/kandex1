@@ -1,0 +1,71 @@
+<h1 class="mb-4">Mis Tareas - Vista Tabla</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="/tareas/create" class="btn btn-success">Nueva Tarea</a>
+    <div class="d-flex gap-2">
+        <a href="/tareas" class="btn btn-outline-primary btn-sm">🎯 Kanban</a>
+        <a href="/tareas?view=list" class="btn btn-outline-primary btn-sm">📋 Lista</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <% if (tareas.length === 0) { %>
+            <div class="alert alert-info">No tienes tareas aún. <a href="/tareas/create">Crea una nueva tarea</a></div>
+        <% } else { %>
+            <table class="table table-striped table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Fecha Límite</th>
+                        <th>Asignado a</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% tareas.forEach(tarea => { 
+                        const colorMap = { 'Baja': '#28a745', 'Media': '#ffc107', 'Alta': '#fd7e14', 'Urgente': '#dc3545' };
+                        const prioridadColor = colorMap[tarea.prioridad] || '#6c757d';
+                    %>
+                        <tr>
+                            <td><strong><%= tarea.titulo %></strong></td>
+                            <td><%= tarea.descripcion.substring(0, 50) %><%= tarea.descripcion.length > 50 ? '...' : '' %></td>
+                            <td>
+                                <span class="badge bg-info"><%= tarea.estado %></span>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: <%= prioridadColor %>"><%= tarea.prioridad %></span>
+                            </td>
+                            <td>
+                                <% if (tarea.fecha_limite) { %>
+                                    <%= new Date(tarea.fecha_limite).toLocaleDateString('es-ES') %>
+                                <% } else { %>
+                                    <span class="text-muted">-</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (tarea.usuario_nombre) { %>
+                                    <%= tarea.usuario_nombre %>
+                                <% } else { %>
+                                    <span class="text-muted">-</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-primary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-danger" onclick="return confirm('¿Eliminar esta tarea?')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+</div>

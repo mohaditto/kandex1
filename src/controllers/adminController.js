@@ -17,7 +17,8 @@ exports.usuarios = async (req, res) => {
         res.render('admin/usuarios', { usuarios, alert: buildAlert(req.query) });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al obtener usuarios');
+        req.session.notification = { type: 'danger', message: 'Error al obtener usuarios. Por favor intenta de nuevo.' };
+        res.redirect('/tareas');
     }
 };
 
@@ -41,7 +42,8 @@ exports.editUsuario = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al cargar usuario');
+        req.session.notification = { type: 'danger', message: 'Error al cargar el usuario. Por favor intenta de nuevo.' };
+        res.redirect('/admin/usuarios');
     }
 };
 
@@ -105,6 +107,7 @@ exports.tareas = async (req, res) => {
         res.render('admin/tareas', { tareas, alert: buildAlert(req.query) });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al obtener tareas');
+        req.session.notification = { type: 'danger', message: 'Error al obtener tareas del administrador. Por favor intenta de nuevo.' };
+        res.redirect('/tareas');
     }
 };

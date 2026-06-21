@@ -12,12 +12,31 @@ const VIEWS = path.join(__dirname, 'views');
 app.set('view engine', 'ejs');
 app.set('views', VIEWS);
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'kandex_secret',
+    resave: false,
+    saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Middleware para variables locales y notificaciones
 app.use((req, res, next) => {
     res.locals.user = req.user || null;
     res.locals.estadosTarea = ESTADOS_TAREA;
+    res.locals.notification = req.session.notification || null;
+    if (req.session.notification) {
+        delete req.session.notification;
+    }
     next();
 });
 
+// Middleware para renderizado de vistas con layout
 app.use((req, res, next) => {
     res.render = function (view, locals, cb) {
         if (typeof locals === 'function') { cb = locals; locals = {}; }
@@ -39,31 +58,14 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'kandex_secret',
-    resave: false,
-    saveUninitialized: false,
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use((req, res, next) => {
-    res.locals.user = req.user || null;
-    res.locals.estadosTarea = ESTADOS_TAREA;
-    next();
-});
-
 const authRoutes      = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const tareaRoutes     = require('./routes/tareaRoutes');
 const equipoRoutes    = require('./routes/equipoRoutes');
 const reporteRoutes   = require('./routes/reporteRoutes');
 const adminRoutes     = require('./routes/adminRoutes');
+const comentarioRoutes = require('./routes/comentarioRoutes');
+const perfilRoutes    = require('./routes/perfilRoutes');
 
 app.use('/auth',      authRoutes);
 app.use('/dashboard', dashboardRoutes);
@@ -71,6 +73,8 @@ app.use('/tareas',    tareaRoutes);
 app.use('/equipos',   equipoRoutes);
 app.use('/reportes',  reporteRoutes);
 app.use('/admin',     adminRoutes);
+app.use('/comentarios', comentarioRoutes);
+app.use('/perfil',    perfilRoutes);
 
 app.get('/', (req, res) => {
     res.redirect(req.isAuthenticated() ? '/tareas' : '/auth/login');

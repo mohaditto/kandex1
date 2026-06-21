@@ -6,7 +6,8 @@ class Comentario {
             'INSERT INTO comentarios (tarea_id, usuario_id, contenido) VALUES (?, ?, ?)',
             [tarea_id, usuario_id, contenido]
         );
-        return result.insertId;
+
+        return { id: result.insertId, tarea_id, usuario_id, contenido };
     }
 
     static async findByTarea(tarea_id) {
@@ -15,6 +16,14 @@ class Comentario {
             [tarea_id]
         );
         return rows;
+    }
+
+    static async findById(id) {
+        const [rows] = await db.promise().query(
+            'SELECT c.*, u.nombre_usuario FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id WHERE c.id = ?',
+            [id]
+        );
+        return rows[0];
     }
 
     static async delete(id) {

@@ -16,7 +16,11 @@ function requireRole(role) {
         if (hasRole(req.user, [role])) {
             return next();
         }
-        res.status(403).send('Acceso denegado');
+        req.session.notification = {
+            type: 'danger',
+            message: 'Acceso denegado: No tienes permiso para acceder a esta sección.'
+        };
+        res.redirect('/tareas');
     };
 }
 
@@ -25,7 +29,11 @@ function requireAnyRole(...roles) {
         if (hasRole(req.user, roles)) {
             return next();
         }
-        res.status(403).send('Acceso denegado');
+        req.session.notification = {
+            type: 'danger',
+            message: 'Acceso denegado: No tienes permiso para acceder a esta sección.'
+        };
+        res.redirect('/tareas');
     };
 }
 

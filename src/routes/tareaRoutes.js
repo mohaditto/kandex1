@@ -20,4 +20,7 @@ router.get('/delete/:id', ensureAuthenticated, tareaController.delete);
 // Endpoint llamado por el JS del Kanban cuando se arrastra una tarjeta.
 router.post('/update-position', ensureAuthenticated, tareaController.updatePosition);
 
+// Endpoint para actualizar solo el estado sin requerir permisos de edición completa
+router.post('/update-estado/:id', ensureAuthenticated, tareaController.updateEstado);
+
 module.exports = router;

@@ -32,7 +32,8 @@ exports.index = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error al generar reportes');
+        req.session.notification = { type: 'danger', message: 'Error al generar reportes. Por favor intenta de nuevo.' };
+        res.redirect('/tareas');
     }
 };
 

@@ -1,0 +1,103 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Mi Perfil</h1>
+    <a href="/tareas" class="btn btn-secondary">Volver al Tablero</a>
+</div>
+
+<% if (alert) { %>
+    <div class="alert alert-<%= alert.type %> alert-dismissible fade show" role="alert">
+        <%= alert.message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<div class="row g-4">
+    <!-- Información Personal -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h2 class="h5 mb-0">👤 Información Personal</h2>
+            </div>
+            <div class="card-body">
+                <form action="/perfil/update" method="POST">
+                    <div class="mb-3">
+                        <label for="nombre_usuario" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="<%= usuario.nombre_usuario %>" required maxlength="100">
+                        <small class="form-text text-muted">Este es tu nombre visible en el sistema</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<%= usuario.email %>" required maxlength="100">
+                        <small class="form-text text-muted">Tu correo de inicio de sesión</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <input type="text" class="form-control" value="<%= usuario.rol %>" disabled>
+                        <small class="form-text text-muted">Tu rol no puede ser modificado aquí. Contacta al administrador si necesitas cambios.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cambiar Contraseña -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h2 class="h5 mb-0">🔒 Cambiar Contraseña</h2>
+            </div>
+            <div class="card-body">
+                <form action="/perfil/change-password" method="POST">
+                    <div class="mb-3">
+                        <label for="password_actual" class="form-label">Contraseña Actual</label>
+                        <input type="password" class="form-control" id="password_actual" name="password_actual" required placeholder="Ingresa tu contraseña actual">
+                        <small class="form-text text-muted">Requerida por seguridad</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password_nueva" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="password_nueva" name="password_nueva" required minlength="8" placeholder="Mínimo 8 caracteres">
+                        <small class="form-text text-muted">Debe tener al menos 8 caracteres</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password_confirmar" class="form-label">Confirmar Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="password_confirmar" name="password_confirmar" required minlength="8" placeholder="Repite la nueva contraseña">
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información de la Cuenta -->
+<div class="row mt-4">
+    <div class="col-lg-12">
+        <div class="card bg-light">
+            <div class="card-header">
+                <h3 class="h5 mb-0">ℹ️ Información de la Cuenta</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID de Usuario:</strong> <%= usuario.id %></p>
+                        <p><strong>Nombre de Usuario:</strong> <%= usuario.nombre_usuario %></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Email:</strong> <%= usuario.email %></p>
+                        <p><strong>Rol:</strong> <span class="badge bg-info"><%= usuario.rol %></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

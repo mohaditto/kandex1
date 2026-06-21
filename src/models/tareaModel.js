@@ -99,6 +99,22 @@ class Tarea {
         return role === 'Líder' && tarea.lider_equipo === user.id;
     }
 
+    static async canView(id, user) {
+        // Permite ver/comentar en tareas del equipo sin requerir edición
+        if (!user) return false;
+        const role = normalizeRole(user.rol);
+        if (role === 'Administrador') return true;
+
+        const [rows] = await db.promise().query(
+            `SELECT DISTINCT t.id
+             FROM tareas t
+             INNER JOIN equipo_usuarios eu ON eu.equipo_id = t.equipo_id
+             WHERE t.id = ? AND eu.usuario_id = ?`,
+            [id, user.id]
+        );
+        return rows.length > 0;
+    }
+
     static async update(id, { titulo, descripcion, estado, prioridad, fecha_inicio, fecha_limite }) {
         const estadoFinal = ESTADOS_TAREA_VALIDOS.includes(estado) ? estado : 'Por realizar';
         const prioridadFinal = PRIORIDADES_VALIDAS.includes(prioridad) ? prioridad : 'Media';
@@ -113,6 +129,19 @@ class Tarea {
         await queryWithLegacyEstadoFallback(query + ' WHERE id = ?', [...params, id], 2);
     }
 
+    static async updateEstado(id, estado) {
+        // Actualiza solo el estado sin requerir permisos de edición completa
+        const estadoFinal = ESTADOS_TAREA_VALIDOS.includes(estado) ? estado : 'Por realizar';
+        let query = 'UPDATE tareas SET estado = ? WHERE id = ?';
+        const params = [estadoFinal, id];
+
+        if (estadoFinal === 'Realizado') {
+            query = 'UPDATE tareas SET estado = ?, fecha_finalizacion = NOW() WHERE id = ?';
+        }
+
+        await queryWithLegacyEstadoFallback(query, params, 0);
+    }
+
     static async delete(id) {
         await db.promise().query('DELETE FROM tareas WHERE id = ?', [id]);
     }
@@ -120,11 +149,15 @@ class Tarea {
     static async updatePosition(id, posicion, estado) {
         // Persiste el drag and drop del tablero: columna nueva y orden dentro de ella.
         const estadoFinal = ESTADOS_TAREA_VALIDOS.includes(estado) ? estado : 'Por realizar';
-        await queryWithLegacyEstadoFallback(
-            'UPDATE tareas SET posicion = ?, estado = ? WHERE id = ?',
-            [posicion, estadoFinal, id]
-            , 1
-        );
+        let query = 'UPDATE tareas SET posicion = ?, estado = ? WHERE id = ?';
+        const params = [posicion, estadoFinal, id];
+        
+        // CRÍTICO: Grabar automáticamente fecha_finalizacion cuando se mueve a "Realizado"
+        if (estadoFinal === 'Realizado') {
+            query = 'UPDATE tareas SET posicion = ?, estado = ?, fecha_finalizacion = NOW() WHERE id = ?';
+        }
+        
+        await queryWithLegacyEstadoFallback(query, params, 1);
     }
 }
 

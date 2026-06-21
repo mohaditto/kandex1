@@ -52,6 +52,30 @@ class Usuario {
             [nombre_usuario, email, rolFinal, id]
         );
     }
+
+    static async updateProfile(id, { nombre_usuario, email }) {
+        // Actualiza perfil del usuario (sin cambiar rol)
+        await db.promise().query(
+            'UPDATE usuarios SET nombre_usuario = ?, email = ? WHERE id = ?',
+            [nombre_usuario, email, id]
+        );
+    }
+
+    static async changePassword(id, newPassword) {
+        // Cambia la contraseña del usuario
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await db.promise().query(
+            'UPDATE usuarios SET password_hash = ? WHERE id = ?',
+            [hashedPassword, id]
+        );
+    }
+
+    static async verifyPassword(id, password) {
+        // Verifica que la contraseña actual sea correcta
+        const [rows] = await db.promise().query('SELECT password_hash FROM usuarios WHERE id = ?', [id]);
+        if (rows.length === 0) return false;
+        return await bcrypt.compare(password, rows[0].password_hash);
+    }
 }
 
 module.exports = Usuario;

@@ -44,7 +44,108 @@
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                     <a href="/tareas" class="btn btn-secondary">Cancelar</a>
                 </form>
+
+                <!-- Sección de Comentarios -->
+                <hr class="my-4">
+                <h4 class="mb-3">Comentarios</h4>
+                
+                <!-- Formulario para agregar comentario -->
+                <div class="card mb-3 bg-light">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2">Agregar Comentario</h6>
+                        <form id="formComentario">
+                            <div class="mb-2">
+                                <textarea class="form-control" id="contenido" name="contenido" rows="3" maxlength="1000" placeholder="Escribe tu comentario aquí..." required></textarea>
+                                <small class="form-text text-muted">Máximo 1000 caracteres</small>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-success">Agregar Comentario</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista de comentarios -->
+                <div id="comentariosList" style="max-height: 400px; overflow-y: auto;">
+                    <p class="text-muted">Cargando comentarios...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+const tareaId = '<%= tarea.id %>';
+const userId = '<%= user.id %>';
+
+// Cargar comentarios
+async function cargarComentarios() {
+    try {
+        const response = await fetch(`/comentarios/${tareaId}`);
+        const data = await response.json();
+        
+        const comentariosList = document.getElementById('comentariosList');
+        
+        if (data.success && data.comentarios.length > 0) {
+            comentariosList.innerHTML = data.comentarios.map(c => `
+                <div class="card mb-2">
+                    <div class="card-body py-2">
+                        <h6 class="card-subtitle mb-1"><strong>${c.nombre_usuario}</strong></h6>
+                        <p class="card-text mb-1">${c.contenido}</p>
+                        <small class="text-muted">${new Date(c.fecha_creacion).toLocaleString('es-ES')}</small>
+                        ${c.usuario_id == userId ? `<button class="btn btn-xs btn-sm btn-danger float-end" onclick="eliminarComentario(${c.id})">Eliminar</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            comentariosList.innerHTML = '<p class="text-muted">No hay comentarios aún</p>';
+        }
+    } catch (err) {
+        console.error('Error cargando comentarios:', err);
+        document.getElementById('comentariosList').innerHTML = '<p class="text-danger">Error al cargar comentarios</p>';
+    }
+}
+
+// Enviar comentario
+document.getElementById('formComentario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const contenido = document.getElementById('contenido').value;
+    
+    try {
+        const response = await fetch(`/comentarios/${tareaId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contenido })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('contenido').value = '';
+            cargarComentarios();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+    }
+});
+
+// Eliminar comentario
+async function eliminarComentario(id) {
+    if (!confirm('¿Eliminar este comentario?')) return;
+    
+    try {
+        const response = await fetch(`/comentarios/${id}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (data.success) {
+            cargarComentarios();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+
+// Cargar comentarios al iniciar la página
+cargarComentarios();
+</script>
+

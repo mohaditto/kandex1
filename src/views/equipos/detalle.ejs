@@ -3,7 +3,7 @@
     <a href="/equipos" class="btn btn-secondary">Volver</a>
 </div>
 
-<p class="text-muted"><%= equipo.descripcion %></p>
+<p style="color:rgb(193, 163, 214)"><%= equipo.descripcion %></p>
 
 <% 
     const isAdmin = user.rol === 'Administrador';
@@ -55,9 +55,9 @@
                     <% } else { %>
                         <form action="/equipos/<%= equipo.id %>/usuarios" method="POST">
                             <div class="mb-3">
-                                <label for="usuario_id" class="form-label">Seleccionar usuario</label>
+                                <label for="usuario_id" class="form-label">Seleccionar Usuario</label>
                                 <select class="form-select" id="usuario_id" name="usuario_id" required>
-                                    <option value="">-- Seleccionar usuario --</option>
+                                    <option value="">-- Seleccionar Usuario --</option>
                                     <% usuariosDisponibles.forEach(usuario => { %>
                                         <option value="<%= usuario.id %>"><%= usuario.nombre_usuario %> (<%= usuario.rol %>)</option>
                                     <% }); %>

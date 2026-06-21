@@ -2,7 +2,7 @@
 
 <div class="row mb-4">
     <div class="col-md-4">
-        <div class="card bg-primary text-white">
+        <div class="card text-white" style="background-color: #0ebbfd;">
             <div class="card-body">
                 <h5 class="card-title">Tareas Completadas</h5>
                 <h2><%= completadas.length %></h2>
@@ -10,7 +10,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-success text-white">
+        <div class="card text-white" style="background-color: #ffca02;">
             <div class="card-body">
                 <h5 class="card-title">Tiempo Promedio</h5>
                 <h2><%= tiempoPromedio %> hrs</h2>
@@ -18,7 +18,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-info text-white">
+        <div class="card text-white" style="background-color: #96fe45;">
             <div class="card-body">
                 <h5 class="card-title">Total de Tareas</h5>
                 <h2><%= tareas.length %></h2>
@@ -75,7 +75,7 @@ document.getElementById('filtroForm').addEventListener('submit', async (e) => {
     const fin = document.getElementById('fecha_fin').value;
     
     if (!inicio || !fin) {
-        alert('Por favor completa ambas fechas');
+        alert('Por favor, completa ambas fechas');
         return;
     }
 

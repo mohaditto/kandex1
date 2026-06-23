@@ -36,7 +36,7 @@
             <div id="<%= estado.id %>" class="kanban-column" data-estado="<%= estado.nombre %>">
                 <h3 class="col-lbl"><%= estado.nombre %></h3>
                 <% tareas.filter(t => t.estado === estado.nombre).forEach(tarea => { %>
-                    <div class="task-card" draggable="true" data-id="<%= tarea.id %>">
+                    <div class="task-card" draggable="false" data-id="<%= tarea.id %>">
                         <h5><%= tarea.titulo %></h5>
                         <p><%= tarea.descripcion %></p>
                         <span class="badge priority-badge priority-<%= tarea.prioridad %>"><%= tarea.prioridad %></span>

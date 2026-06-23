@@ -5,7 +5,7 @@
 
 <div class="row mb-4">
     <div class="col-md-4">
-        <div class="card bg-primary text-white">
+        <div class="card text-white" style="background-color: #0ebbfd;">
             <div class="card-body">
                 <h5 class="card-title">Tareas Completadas</h5>
                 <h2><%= completadas.length %></h2>
@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-success text-white">
+        <div class="card text-white" style="background-color: #ffca02;">
             <div class="card-body">
                 <h5 class="card-title">Tiempo Promedio</h5>
                 <h2><%= tiempoPromedio %> hrs</h2>
@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-info text-white">
+        <div class="card text-white" style="background-color: #96fe45;">
             <div class="card-body">
                 <h5 class="card-title">Total de Tareas</h5>
                 <h2><%= tareas.length %></h2>
@@ -49,14 +49,14 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Título</th>
-            <th>Fecha Creación</th>
-            <th>Fecha Finalización</th>
+            <th>Titulo</th>
+            <th>Fecha Creacion</th>
+            <th>Fecha Finalizacion</th>
             <th>Tiempo (horas)</th>
         </tr>
     </thead>
     <tbody>
-        <% completadas.forEach(tarea => { 
+        <% completadas.forEach(tarea => {
             const inicio = new Date(tarea.fecha_creacion);
             const fin = new Date(tarea.fecha_finalizacion);
             const horas = ((fin - inicio) / (1000 * 60 * 60)).toFixed(2);
@@ -72,7 +72,6 @@
 </table>
 
 <script>
-// Función para mostrar notificaciones
 function mostrarNotificacion(mensaje, tipo = 'danger') {
     const container = document.getElementById('notificaciones');
     const alertDiv = document.createElement('div');
@@ -84,7 +83,6 @@ function mostrarNotificacion(mensaje, tipo = 'danger') {
     `;
     container.appendChild(alertDiv);
 
-    // Auto-descartar después de 5 segundos
     setTimeout(() => {
         alertDiv.remove();
     }, 5000);
@@ -94,7 +92,7 @@ document.getElementById('filtroForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const inicio = document.getElementById('fecha_inicio').value;
     const fin = document.getElementById('fecha_fin').value;
-    
+
     if (!inicio || !fin) {
         mostrarNotificacion('Por favor completa ambas fechas', 'warning');
         return;

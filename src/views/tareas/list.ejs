@@ -2,8 +2,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <a href="/tareas/create" class="btn btn-success">Nueva Tarea</a>
     <div class="d-flex gap-2">
-        <a href="/tareas" class="btn btn-outline-primary btn-sm">🎯 Kanban</a>
-        <a href="/tareas?view=table" class="btn btn-outline-primary btn-sm">📊 Tabla</a>
+        <a href="/tareas" class="btn btn-outline-primary btn-sm"><i class="bi bi-kanban"></i> Kanban</a>
+        <a href="/tareas?view=table" class="btn btn-outline-primary btn-sm"><i class="bi bi-table"></i> Tabla</a>
     </div>
 </div>
 
@@ -43,8 +43,9 @@
                                 </div>
                             </div>
                             <div class="btn-group ms-3">
-                                <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-primary">Editar</a>
-                                <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta tarea?')">Eliminar</a>
+                                <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-primary" title="Editar tarea"><i class="bi bi-pencil"></i></a>
+                                <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-info" title="Ver comentarios"><i class="bi bi-chat-dots"></i></a>
+                                <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta tarea?')" title="Eliminar"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>

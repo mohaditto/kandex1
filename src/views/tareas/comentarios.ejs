@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comentarios — Kandex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <!-- Botón volver -->
+                <a href="/tareas" class="btn btn-secondary mb-4"><i class="bi bi-arrow-left"></i> Volver al Tablero</a>
+
+                <!-- Detalles de la tarea -->
+                <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><%= tarea.titulo %></h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted"><%= tarea.descripcion %></p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Prioridad:</strong> 
+                            <% const colorMap = { 'Baja': '#28a745', 'Media': '#ffc107', 'Alta': '#fd7e14', 'Urgente': '#dc3545' }; %>
+                            <span class="badge" style="background-color: <%= colorMap[tarea.prioridad] || '#6c757d' %>"><%= tarea.prioridad %></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Estado:</strong> 
+                            <span class="badge bg-info"><%= tarea.estado %></span>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Asignado a:</strong> <%= tarea.usuario_nombre || 'No asignado' %>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Equipo:</strong> <%= tarea.nombre_equipo || 'Sin equipo' %>
+                        </div>
+                    </div>
+
+                    <% if (user.rol === 'Líder' && tarea.ultimo_cambio_usuario_id) { %>
+                        <hr>
+                        <div class="alert alert-info mb-0">
+                            <strong><i class="bi bi-info-circle me-2"></i>Último cambio de estado:</strong><br>
+                            <small id="ultimoCambio">Cargando...</small>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Formulario para agregar comentario -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Agregar Comentario</h6>
+                </div>
+                <div class="card-body">
+                    <form id="formComentario">
+                        <textarea class="form-control" id="comentarioTexto" rows="3" maxlength="1000" placeholder="Escribe tu comentario..."></textarea>
+                        <small class="text-muted d-block mt-1">Máximo 1000 caracteres</small>
+                        <button type="button" class="btn btn-success mt-3" onclick="agregarComentario()">
+                            <i class="bi bi-send"></i> Comentar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista de comentarios -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Comentarios</h6>
+                </div>
+                <div class="card-body" id="listComentarios" style="max-height: 600px; overflow-y: auto;">
+                    <p class="text-muted text-center">Cargando comentarios...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmación personalizada -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmMessage">
+                ¿Estás seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmCancel">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmAccept">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor de notificaciones -->
+<div id="notificaciones" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;"></div>
+
+<script>
+const tareaId = <%= tarea.id %>;
+const usuarioIdActual = '<%= user.id %>';
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'danger') {
+    const container = document.getElementById('notificaciones');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.style.marginBottom = '10px';
+    alertDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.appendChild(alertDiv);
+
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Función para mostrar confirmación personalizada
+function mostrarConfirmacion(mensaje) {
+    return new Promise((resolve) => {
+        const modalElement = document.getElementById('confirmModal');
+        const messageElement = document.getElementById('confirmMessage');
+        const acceptBtn = document.getElementById('confirmAccept');
+        const cancelBtn = document.getElementById('confirmCancel');
+        
+        messageElement.textContent = mensaje;
+        
+        const newAcceptBtn = acceptBtn.cloneNode(true);
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        acceptBtn.parentNode.replaceChild(newAcceptBtn, acceptBtn);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        const modal = new bootstrap.Modal(modalElement);
+        
+        newAcceptBtn.addEventListener('click', () => {
+            modal.hide();
+            resolve(true);
+        });
+        
+        newCancelBtn.addEventListener('click', () => {
+            modal.hide();
+            resolve(false);
+        });
+        
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            resolve(false);
+        }, { once: true });
+        
+        modal.show();
+    });
+}
+
+// Cargar comentarios
+async function cargarComentarios() {
+    try {
+        const response = await fetch(`/comentarios/${tareaId}`);
+        const data = await response.json();
+        const listComentarios = document.getElementById('listComentarios');
+        
+        if (data.success && data.comentarios && data.comentarios.length > 0) {
+            listComentarios.innerHTML = data.comentarios.map(c => `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="card-subtitle mb-1"><strong>${c.nombre_usuario}</strong></h6>
+                                <small class="text-muted">${new Date(c.fecha_creacion).toLocaleString('es-ES')}</small>
+                            </div>
+                            ${parseInt(c.usuario_id) === parseInt(usuarioIdActual) ? `
+                                <button class="btn btn-sm btn-danger" onclick="eliminarComentario(${c.id})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <p class="card-text">${c.contenido}</p>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            listComentarios.innerHTML = '<p class="text-muted text-center">Sin comentarios aún</p>';
+        }
+
+        // Cargar información del último cambio
+        const elementoUltimoCambio = document.getElementById('ultimoCambio');
+        if (elementoUltimoCambio) {
+            try {
+                const respuesta = await fetch(`/tareas/${tareaId}/ultimo-cambio`);
+                const datos = await respuesta.json();
+                if (datos.success && datos.cambio) {
+                    const cambio = datos.cambio;
+                    const fecha = new Date(cambio.fecha).toLocaleString('es-ES');
+                    elementoUltimoCambio.innerHTML = `<strong>${cambio.nombre_usuario}</strong> cambió a <strong>"${cambio.estado}"</strong> el ${fecha}`;
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        document.getElementById('listComentarios').innerHTML = '<p class="text-danger">Error al cargar comentarios</p>';
+    }
+}
+
+// Agregar comentario
+async function agregarComentario() {
+    const textarea = document.getElementById('comentarioTexto');
+    const contenido = textarea.value.trim();
+
+    if (!contenido) {
+        mostrarNotificacion('Por favor escribe un comentario', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/comentarios/${tareaId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contenido })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            textarea.value = '';
+            mostrarNotificacion('✓ Comentario agregado', 'success');
+            await cargarComentarios();
+        } else {
+            mostrarNotificacion(data.message || 'Error al agregar comentario', 'danger');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        mostrarNotificacion('Error al agregar comentario', 'danger');
+    }
+}
+
+// Eliminar comentario
+async function eliminarComentario(comentarioId) {
+    const confirmado = await mostrarConfirmacion('¿Eliminar este comentario?');
+    if (!confirmado) return;
+
+    try {
+        const response = await fetch(`/comentarios/${comentarioId}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            mostrarNotificacion('✓ Comentario eliminado', 'success');
+            await cargarComentarios();
+        } else {
+            mostrarNotificacion(data.message || 'Error al eliminar', 'danger');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        mostrarNotificacion('Error al eliminar comentario', 'danger');
+    }
+}
+
+// Cargar comentarios al iniciar
+document.addEventListener('DOMContentLoaded', () => {
+    cargarComentarios();
+});
+</script>
+    <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,21 +1,20 @@
 <% const role = user && (user.rol === 'admin' ? 'Administrador' : user.rol === 'usuario' ? 'Miembro' : user.rol); %>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="/dashboard">Kandex</a>
+<nav class="navbar kbar navbar-expand-lg navbar-dark">
+    <a class="brand" href="/dashboard"><i class="bi bi-kanban-fill"></i> Kandex</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/dashboard">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="/tareas">Tareas</a></li>
-                <li class="nav-item"><a class="nav-link" href="/equipos">Equipos</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="bi bi-house-door"></i>Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/tareas"><i class="bi bi-list-task"></i> Tareas</a></li>
+                <li class="nav-item"><a class="nav-link" href="/equipos"><i class="bi bi-people"></i> Equipos</a></li>
                 <% if (role === 'Administrador' || role === 'Líder') { %>
-                    <li class="nav-item"><a class="nav-link" href="/reportes">Reportes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reportes"><i class="bi bi-bar-chart"></i> Reportes</a></li>
                 <% } %>
                 <% if (role === 'Administrador') { %>
-                    <li class="nav-item"><a class="nav-link" href="/admin/usuarios">Usuarios</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/admin/tareas">Tareas Globales</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/usuarios"><i class="bi bi-person"></i> Usuarios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/tareas"><i class="bi bi-list"></i> Tareas Globales</a></li>
                 <% } %>
             </ul>
             <ul class="navbar-nav">
@@ -25,6 +24,8 @@
                             <%= user.nombre_usuario %> (<%= role %>)
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><small class="dropdown-header"><%= userEquipoPrincipal ? 'Grupo: ' + userEquipoPrincipal.nombre_equipo : 'Sin grupo' %></small></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/perfil">Mi Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/auth/logout">Cerrar sesión</a></li>

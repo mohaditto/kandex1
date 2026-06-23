@@ -1,5 +1,8 @@
 <h1 class="mb-4">Reportes de Productividad</h1>
 
+<!-- Contenedor de notificaciones -->
+<div id="notificaciones" style="position: fixed; top: 20px; right: 20px; z-index: 1050; max-width: 400px;"></div>
+
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card bg-primary text-white">
@@ -69,18 +72,36 @@
 </table>
 
 <script>
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'danger') {
+    const container = document.getElementById('notificaciones');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.style.marginBottom = '10px';
+    alertDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.appendChild(alertDiv);
+
+    // Auto-descartar después de 5 segundos
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
 document.getElementById('filtroForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const inicio = document.getElementById('fecha_inicio').value;
     const fin = document.getElementById('fecha_fin').value;
     
     if (!inicio || !fin) {
-        alert('Por favor completa ambas fechas');
+        mostrarNotificacion('Por favor completa ambas fechas', 'warning');
         return;
     }
 
     const response = await fetch(`/reportes/filtrar?fecha_inicio=${inicio}&fecha_fin=${fin}`);
     const data = await response.json();
-    alert(`Se encontraron ${data.total} tareas completadas en ese rango`);
+    mostrarNotificacion(`Se encontraron ${data.total} tareas completadas en ese rango`, 'success');
 });
 </script>

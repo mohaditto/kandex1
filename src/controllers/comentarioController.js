@@ -34,7 +34,8 @@ exports.crear = async (req, res) => {
             comentario: {
                 id: comentario.id,
                 contenido,
-                usuario_nombre: req.user.nombre_usuario,
+                nombre_usuario: req.user.nombre_usuario,
+                usuario_id: req.user.id,
                 fecha_creacion: new Date().toLocaleString('es-ES')
             }
         });

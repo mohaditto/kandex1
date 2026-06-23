@@ -3,6 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('./config/passport');
 const { ESTADOS_TAREA } = require('./config/taskStates');
+const Equipo = require('./models/equipoModel');
 const path = require('path');
 const ejs = require('ejs');
 
@@ -32,6 +33,22 @@ app.use((req, res, next) => {
     res.locals.notification = req.session.notification || null;
     if (req.session.notification) {
         delete req.session.notification;
+    }
+    next();
+});
+
+// Middleware para cargar equipos del usuario
+app.use(async (req, res, next) => {
+    if (req.user) {
+        try {
+            const equipos = await Equipo.getTeamsByUser(req.user.id);
+            res.locals.userEquipos = equipos;
+            res.locals.userEquipoPrincipal = equipos.length > 0 ? equipos[0] : null;
+        } catch (err) {
+            console.error('Error cargando equipos del usuario:', err);
+            res.locals.userEquipos = [];
+            res.locals.userEquipoPrincipal = null;
+        }
     }
     next();
 });

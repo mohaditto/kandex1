@@ -46,15 +46,6 @@ async function equiposDisponibles(user) {
 exports.getTareas = async (req, res) => {
     try {
         const tareas = await tareasVisibles(req.user);
-        const view = req.query.view || 'board'; // board, list, table
-        
-        if (view === 'list') {
-            return res.render('tareas/list', { tareas, user: req.user, estadosTarea: ESTADOS_TAREA });
-        } else if (view === 'table') {
-            return res.render('tareas/table', { tareas, user: req.user, estadosTarea: ESTADOS_TAREA });
-        }
-        
-        // Vista por defecto: board (Kanban)
         res.render('tareas/board', { tareas, user: req.user, estadosTarea: ESTADOS_TAREA });
     } catch (err) {
         console.error(err);
@@ -170,10 +161,11 @@ exports.updatePosition = async (req, res) => {
         if (!Number.isInteger(Number(id)) || !Number.isInteger(Number(posicion)) || !ESTADOS_TAREA_VALIDOS.includes(estado)) {
             return res.status(400).json({ success: false, message: 'Datos inválidos para mover la tarea.' });
         }
-        if (!(await Tarea.canAccess(id, req.user))) {
+        // Usar canView en lugar de canAccess para permitir que miembros del equipo cambien estado
+        if (!(await Tarea.canView(id, req.user))) {
             return res.status(403).json({ success: false, message: 'No tienes permiso para mover esta tarea.' });
         }
-        await Tarea.updatePosition(id, posicion, estado);
+        await Tarea.updatePosition(id, posicion, estado, req.user.id);
         res.json({ success: true });
     } catch (err) {
         console.error(err);
@@ -194,10 +186,62 @@ exports.updateEstado = async (req, res) => {
             return res.status(403).json({ success: false, message: 'No tienes permiso para actualizar esta tarea.' });
         }
 
-        await Tarea.updateEstado(id, estado);
+        await Tarea.updateEstado(id, estado, req.user.id);
         res.json({ success: true, message: 'Estado actualizado correctamente.' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Error al actualizar el estado.' });
+    }
+};
+
+exports.getUltimoCambio = async (req, res) => {
+    try {
+        const tareaId = req.params.id;
+        const role = normalizeRole(req.user.rol);
+
+        // Solo líderes y administradores pueden ver quién cambió el estado
+        if (role !== 'Líder' && role !== 'Administrador') {
+            return res.status(403).json({ success: false, message: 'No tienes permiso para ver esta información.' });
+        }
+
+        if (!(await Tarea.canAccess(tareaId, req.user))) {
+            return res.status(403).json({ success: false, message: 'No tienes acceso a esta tarea.' });
+        }
+
+        const cambio = await Tarea.getUltimoCambio(tareaId);
+        if (cambio) {
+            res.json({ success: true, cambio });
+        } else {
+            res.json({ success: true, cambio: null });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Error al obtener la información.' });
+    }
+};
+
+exports.getComentariosPage = async (req, res) => {
+    try {
+        const tareaId = req.params.id;
+
+        // Verificar acceso
+        if (!(await Tarea.canView(tareaId, req.user))) {
+            req.session.notification = {
+                type: 'danger',
+                message: 'No tienes acceso a esta tarea.'
+            };
+            return res.redirect('/tareas');
+        }
+
+        // Obtener tarea
+        const tarea = await Tarea.findById(tareaId);
+        if (!tarea) {
+            return res.redirect('/tareas');
+        }
+
+        res.render('tareas/comentarios', { tarea, user: req.user });
+    } catch (err) {
+        console.error(err);
+        res.redirect('/tareas');
     }
 };

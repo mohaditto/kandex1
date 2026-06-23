@@ -1,16 +1,37 @@
-<h1 class="mb-4">Tablero Kanban</h1>
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="/tareas/create" class="btn btn-success">Nueva Tarea</a>
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 style="font-size:1.3rem;font-weight:700;letter-spacing:-.03em;">
+            <i class="bi bi-kanban-fill me-2" style="color:#6366f1;"></i>Mi Tablero Kanban
+        </h1>
+    </div>
     <div class="d-flex gap-2">
-        <select id="filtroPropridad" class="form-select" style="max-width: 200px;">
+        <select id="filtroPrioridad" class="form-select" style="max-width: 200px;">
             <option value="">Todas las prioridades</option>
             <option value="Baja">Baja</option>
             <option value="Media">Media</option>
             <option value="Alta">Alta</option>
             <option value="Urgente">Urgente</option>
         </select>
-        <a href="/tareas?view=list" class="btn btn-outline-primary btn-sm">📋 Lista</a>
-        <a href="/tareas?view=table" class="btn btn-outline-primary btn-sm">📊 Tabla</a>
+        <a href="/tareas/create" class="btn btn-success"><i class="bi bi-plus"></i> Nueva Tarea</a>
+    </div>
+</div>
+
+<!-- Modal para confirmacion personalizada -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar accion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmMessage">
+                Estas seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmCancel">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmAccept">Aceptar</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -20,84 +41,20 @@
 <div class="row">
     <% estadosTarea.forEach(estado => { %>
         <div class="col-md-4">
-            <h3 class="text-center mb-3"><%= estado.nombre %></h3>
             <div id="<%= estado.id %>" class="kanban-column" data-estado="<%= estado.nombre %>">
-                <% tareas.filter(t => t.estado === estado.nombre).forEach(tarea => { 
+                <h3 class="col-lbl mb-3"><%= estado.nombre %></h3>
+                <% tareas.filter(t => t.estado === estado.nombre).forEach(tarea => {
                     const colorMap = { 'Baja': '#28a745', 'Media': '#ffc107', 'Alta': '#fd7e14', 'Urgente': '#dc3545' };
                     const prioridadColor = colorMap[tarea.prioridad] || '#6c757d';
                 %>
                     <div class="task-card" draggable="true" data-id="<%= tarea.id %>" data-prioridad="<%= tarea.prioridad %>">
                         <h5><%= tarea.titulo %></h5>
                         <p><%= tarea.descripcion %></p>
-                        <small class="text-muted">Prioridad: <span class="badge" style="background-color: <%= prioridadColor %>"><%= tarea.prioridad %></span></small>
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#tareaModal<%= tarea.id %>" onclick="cargarDetallesTarea(<%= tarea.id %>)">💬 Detalles</button>
-                            <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-primary">Editar</a>
-                            <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-danger">Eliminar</a>
-                        </div>
-                    </div>
-
-                    <!-- Modal para detalles y comentarios -->
-                    <div class="modal fade" id="tareaModal<%= tarea.id %>" tabindex="-1">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"><%= tarea.titulo %></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- Detalles de la tarea -->
-                                    <div class="mb-4">
-                                        <h6>Detalles</h6>
-                                        <p class="text-muted"><%= tarea.descripcion %></p>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <strong>Prioridad:</strong> 
-                                                <span class="badge" style="background-color: <%= prioridadColor %>"><%= tarea.prioridad %></span>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <strong>Estado:</strong> 
-                                                <span class="badge bg-info"><%= tarea.estado %></span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Cambiar estado -->
-                                    <div class="mb-4">
-                                        <h6>Cambiar Estado</h6>
-                                        <div class="input-group">
-                                            <select class="form-select" id="estadoSelect<%= tarea.id %>" onchange="cambiarEstado(<%= tarea.id %>)">
-                                                <option value="">-- Seleccionar estado --</option>
-                                                <% estadosTarea.forEach(estado => { %>
-                                                    <option value="<%= estado.nombre %>" <%= tarea.estado === estado.nombre ? 'selected' : '' %>><%= estado.nombre %></option>
-                                                <% }); %>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <!-- Comentarios -->
-                                    <hr>
-                                    <h6>Comentarios</h6>
-                                    
-                                    <!-- Formulario para agregar comentario -->
-                                    <div class="card mb-3 bg-light">
-                                        <div class="card-body">
-                                            <form id="formComentario<%= tarea.id %>">
-                                                <textarea class="form-control" id="comentario<%= tarea.id %>" rows="2" maxlength="1000" placeholder="Agregar un comentario..."></textarea>
-                                                <button type="button" class="btn btn-sm btn-success mt-2" onclick="agregarComentario(<%= tarea.id %>)">Comentar</button>
-                                            </form>
-                                        </div>
-                                    </div>
-
-                                    <!-- Lista de comentarios -->
-                                    <div id="comentarios<%= tarea.id %>" style="max-height: 300px; overflow-y: auto;">
-                                        <p class="text-muted text-center">Cargando comentarios...</p>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                </div>
-                            </div>
+                        <span class="badge priority-badge priority-<%= tarea.prioridad %>" style="background-color: <%= prioridadColor %>"><%= tarea.prioridad %></span>
+                        <div class="mt-2 d-flex gap-2">
+                            <a href="/tareas/<%= tarea.id %>/comentarios" class="btn btn-sm btn-info"><i class="bi bi-chat-dots"></i> Comentarios</a>
+                            <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
                         </div>
                     </div>
                 <% }); %>
@@ -107,145 +64,66 @@
 </div>
 
 <script>
-// Variable global con el ID del usuario actual
 const usuarioIdActual = '<%= user.id %>';
 
-// Función para cargar los comentarios cuando se abre el modal
-async function cargarDetallesTarea(tareaId) {
-    try {
-        const response = await fetch(`/comentarios/${tareaId}`);
-        const data = await response.json();
-        const comentariosList = document.getElementById(`comentarios${tareaId}`);
-        
-        if (data.success && data.comentarios && data.comentarios.length > 0) {
-            comentariosList.innerHTML = data.comentarios.map(c => `
-                <div class="card mb-2">
-                    <div class="card-body py-2">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-subtitle mb-1"><strong>${c.nombre_usuario}</strong></h6>
-                                <p class="card-text mb-1">${c.contenido}</p>
-                                <small class="text-muted">${new Date(c.fecha_creacion).toLocaleString('es-ES')}</small>
-                            </div>
-                            ${parseInt(c.usuario_id) === parseInt(usuarioIdActual) ? `
-                                <button class="btn btn-sm btn-danger" onclick="eliminarComentario(${c.id})">🗑️</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            comentariosList.innerHTML = '<p class="text-muted text-center">Sin comentarios</p>';
-        }
-    } catch (err) {
-        console.error('Error cargando comentarios:', err);
-        document.getElementById(`comentarios${tareaId}`).innerHTML = '<p class="text-danger">Error al cargar comentarios</p>';
-    }
+function mostrarNotificacion(mensaje, tipo = 'danger') {
+    const container = document.getElementById('notificaciones');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.style.marginBottom = '10px';
+    alertDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    container.appendChild(alertDiv);
+
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
 }
 
-// Función para cambiar el estado con confirmación
-async function cambiarEstado(tareaId) {
-    const selectElement = document.getElementById(`estadoSelect${tareaId}`);
-    const nuevoEstado = selectElement.value;
-    
-    if (!nuevoEstado) return;
+function mostrarConfirmacion(mensaje) {
+    return new Promise((resolve) => {
+        const modalElement = document.getElementById('confirmModal');
+        const messageElement = document.getElementById('confirmMessage');
+        const acceptBtn = document.getElementById('confirmAccept');
+        const cancelBtn = document.getElementById('confirmCancel');
 
-    if (!confirm(`¿Estás seguro de que deseas cambiar el estado a "${nuevoEstado}"?`)) {
-        selectElement.value = selectElement.options[selectElement.selectedIndex - 1].value;
-        return;
-    }
+        messageElement.textContent = mensaje;
 
-    try {
-        const response = await fetch(`/tareas/update-estado/${tareaId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ estado: nuevoEstado })
+        const newAcceptBtn = acceptBtn.cloneNode(true);
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        acceptBtn.parentNode.replaceChild(newAcceptBtn, acceptBtn);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+        const modal = new bootstrap.Modal(modalElement);
+
+        newAcceptBtn.addEventListener('click', () => {
+            modal.hide();
+            resolve(true);
         });
 
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            mostrarNotificacion('Estado actualizado correctamente', 'success');
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            mostrarNotificacion(data.message || 'Error al actualizar el estado', 'danger');
-            selectElement.value = '';
-        }
-    } catch (err) {
-        console.error('Error:', err);
-        mostrarNotificacion('Error al actualizar el estado', 'danger');
-        selectElement.value = '';
-    }
-}
-
-// Función para agregar un comentario
-async function agregarComentario(tareaId) {
-    const textarea = document.getElementById(`comentario${tareaId}`);
-    const contenido = textarea.value.trim();
-
-    if (!contenido) {
-        alert('Por favor escribe un comentario');
-        return;
-    }
-
-    try {
-        const response = await fetch(`/comentarios/${tareaId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contenido })
+        newCancelBtn.addEventListener('click', () => {
+            modal.hide();
+            resolve(false);
         });
 
-        const data = await response.json();
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            resolve(false);
+        }, { once: true });
 
-        if (response.ok && data.success) {
-            textarea.value = '';
-            mostrarNotificacion('Comentario agregado', 'success');
-            cargarDetallesTarea(tareaId);
-        } else {
-            mostrarNotificacion(data.message || 'Error al agregar comentario', 'danger');
-        }
-    } catch (err) {
-        console.error('Error:', err);
-        mostrarNotificacion('Error al agregar comentario', 'danger');
-    }
-}
-
-// Función para eliminar un comentario
-async function eliminarComentario(comentarioId) {
-    if (!confirm('¿Eliminar este comentario?')) return;
-
-    try {
-        const response = await fetch(`/comentarios/${comentarioId}`, {
-            method: 'DELETE'
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            mostrarNotificacion('Comentario eliminado', 'success');
-            location.reload();
-        } else {
-            mostrarNotificacion(data.message || 'Error al eliminar', 'danger');
-        }
-    } catch (err) {
-        console.error('Error:', err);
-        mostrarNotificacion('Error al eliminar comentario', 'danger');
-    }
+        modal.show();
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const filtroSelect = document.getElementById('filtroPropridad');
+    const filtroSelect = document.getElementById('filtroPrioridad');
     const taskCards = document.querySelectorAll('.task-card');
 
-    // Filtrar tareas por prioridad
     filtroSelect.addEventListener('change', (e) => {
         const filtro = e.target.value;
         taskCards.forEach(card => {
-            if (filtro === '' || card.dataset.prioridad === filtro) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
+            card.style.display = filtro === '' || card.dataset.prioridad === filtro ? '' : 'none';
         });
     });
 
@@ -270,10 +148,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const movedElement = draggedElement;
             const previousParent = movedElement.parentElement;
+            const estadoAnterior = previousParent.dataset.estado;
             const taskId = movedElement.dataset.id;
             const nuevoEstado = column.dataset.estado;
+            const taskTitle = movedElement.querySelector('h5')?.textContent || 'Sin titulo';
+
+            if (estadoAnterior === nuevoEstado) {
+                return;
+            }
 
             column.appendChild(movedElement);
+
+            const confirmado = await mostrarConfirmacion(`Cambiar la tarea "${taskTitle}" a estado "${nuevoEstado}"?`);
+
+            if (!confirmado) {
+                previousParent.appendChild(movedElement);
+                mostrarNotificacion('Cambio cancelado', 'info');
+                return;
+            }
 
             try {
                 const response = await fetch('/tareas/update-position', {
@@ -313,22 +205,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-// Función para mostrar notificaciones en la página
-function mostrarNotificacion(mensaje, tipo = 'danger') {
-    const container = document.getElementById('notificaciones');
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
-    alertDiv.style.marginBottom = '10px';
-    alertDiv.innerHTML = `
-        ${mensaje}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    container.appendChild(alertDiv);
-
-    // Auto-descartar después de 5 segundos
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
 </script>

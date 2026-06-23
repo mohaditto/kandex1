@@ -8,9 +8,9 @@ const router = express.Router();
 // Todas las rutas de tareas requieren autenticación
 router.get('/', ensureAuthenticated, tareaController.getTareas);
 
-// Solo admin y líder pueden crear tareas
-router.get('/create', ensureAuthenticated, requireAnyRole('Administrador', 'Líder'), tareaController.getCreate);
-router.post('/create', ensureAuthenticated, requireAnyRole('Administrador', 'Líder'), tareaController.postCreate);
+// Cualquier usuario autenticado puede crear tareas
+router.get('/create', ensureAuthenticated, tareaController.getCreate);
+router.post('/create', ensureAuthenticated, tareaController.postCreate);
 
 // Editar, eliminar y actualizar posición requieren autenticación
 router.get('/edit/:id', ensureAuthenticated, tareaController.getEdit);
@@ -22,5 +22,11 @@ router.post('/update-position', ensureAuthenticated, tareaController.updatePosit
 
 // Endpoint para actualizar solo el estado sin requerir permisos de edición completa
 router.post('/update-estado/:id', ensureAuthenticated, tareaController.updateEstado);
+
+// Endpoint para obtener información del último cambio de estado
+router.get('/:id/ultimo-cambio', ensureAuthenticated, tareaController.getUltimoCambio);
+
+// Página de comentarios
+router.get('/:id/comentarios', ensureAuthenticated, tareaController.getComentariosPage);
 
 module.exports = router;

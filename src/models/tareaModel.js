@@ -129,14 +129,14 @@ class Tarea {
         await queryWithLegacyEstadoFallback(query + ' WHERE id = ?', [...params, id], 2);
     }
 
-    static async updateEstado(id, estado) {
+    static async updateEstado(id, estado, usuario_id = null) {
         // Actualiza solo el estado sin requerir permisos de edición completa
         const estadoFinal = ESTADOS_TAREA_VALIDOS.includes(estado) ? estado : 'Por realizar';
-        let query = 'UPDATE tareas SET estado = ? WHERE id = ?';
-        const params = [estadoFinal, id];
+        let query = 'UPDATE tareas SET estado = ?, ultimo_cambio_usuario_id = ?, ultimo_cambio_fecha = NOW() WHERE id = ?';
+        const params = [estadoFinal, usuario_id, id];
 
         if (estadoFinal === 'Realizado') {
-            query = 'UPDATE tareas SET estado = ?, fecha_finalizacion = NOW() WHERE id = ?';
+            query = 'UPDATE tareas SET estado = ?, fecha_finalizacion = NOW(), ultimo_cambio_usuario_id = ?, ultimo_cambio_fecha = NOW() WHERE id = ?';
         }
 
         await queryWithLegacyEstadoFallback(query, params, 0);
@@ -146,15 +146,27 @@ class Tarea {
         await db.promise().query('DELETE FROM tareas WHERE id = ?', [id]);
     }
 
-    static async updatePosition(id, posicion, estado) {
+    static async getUltimoCambio(id) {
+        // Obtiene información sobre quién cambió el estado de una tarea
+        const [rows] = await db.promise().query(
+            `SELECT u.nombre_usuario, t.estado, t.ultimo_cambio_fecha as fecha
+             FROM tareas t
+             LEFT JOIN usuarios u ON u.id = t.ultimo_cambio_usuario_id
+             WHERE t.id = ? AND t.ultimo_cambio_usuario_id IS NOT NULL`,
+            [id]
+        );
+        return rows[0] || null;
+    }
+
+    static async updatePosition(id, posicion, estado, usuario_id = null) {
         // Persiste el drag and drop del tablero: columna nueva y orden dentro de ella.
         const estadoFinal = ESTADOS_TAREA_VALIDOS.includes(estado) ? estado : 'Por realizar';
-        let query = 'UPDATE tareas SET posicion = ?, estado = ? WHERE id = ?';
-        const params = [posicion, estadoFinal, id];
+        let query = 'UPDATE tareas SET posicion = ?, estado = ?, ultimo_cambio_usuario_id = ?, ultimo_cambio_fecha = NOW() WHERE id = ?';
+        const params = [posicion, estadoFinal, usuario_id, id];
         
         // CRÍTICO: Grabar automáticamente fecha_finalizacion cuando se mueve a "Realizado"
         if (estadoFinal === 'Realizado') {
-            query = 'UPDATE tareas SET posicion = ?, estado = ?, fecha_finalizacion = NOW() WHERE id = ?';
+            query = 'UPDATE tareas SET posicion = ?, estado = ?, fecha_finalizacion = NOW(), ultimo_cambio_usuario_id = ?, ultimo_cambio_fecha = NOW() WHERE id = ?';
         }
         
         await queryWithLegacyEstadoFallback(query, params, 1);

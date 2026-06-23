@@ -25,7 +25,10 @@ exports.usuarios = async (req, res) => {
 exports.editUsuario = async (req, res) => {
     try {
         const usuario = await Usuario.findById(req.params.id);
-        if (!usuario) return res.redirect('/admin/usuarios?error=Usuario no encontrado');
+        if (!usuario) {
+            req.session.notification = { type: 'danger', message: 'Usuario no encontrado.' };
+            return res.redirect('/admin/usuarios');
+        }
         usuario.rol = normalizeRole(usuario.rol);
 
         const equipos = await Equipo.findAll();
@@ -54,7 +57,8 @@ exports.updateUsuario = async (req, res) => {
     const rol = normalizeRole(req.body.rol);
 
     if (!nombre_usuario || !email || !ROLES_VALIDOS.includes(rol)) {
-        return res.redirect(`/admin/usuarios/${id}/edit?error=Datos inválidos para actualizar el usuario`);
+        req.session.notification = { type: 'danger', message: 'Datos inválidos para actualizar el usuario.' };
+        return res.redirect(`/admin/usuarios/${id}/edit`);
     }
 
     try {
@@ -66,10 +70,12 @@ exports.updateUsuario = async (req, res) => {
             req.user.rol = rol;
         }
 
-        res.redirect(`/admin/usuarios/${id}/edit?ok=Usuario actualizado correctamente`);
+        req.session.notification = { type: 'success', message: 'Usuario actualizado correctamente.' };
+        res.redirect(`/admin/usuarios/${id}/edit`);
     } catch (err) {
         console.error(err);
-        res.redirect(`/admin/usuarios/${id}/edit?error=No se pudo actualizar el usuario`);
+        req.session.notification = { type: 'danger', message: 'No se pudo actualizar el usuario.' };
+        res.redirect(`/admin/usuarios/${id}/edit`);
     }
 };
 
@@ -77,14 +83,19 @@ exports.addEquipo = async (req, res) => {
     const usuarioId = req.params.id;
     const equipoId = req.body.equipo_id;
 
-    if (!equipoId) return res.redirect(`/admin/usuarios/${usuarioId}/edit?error=Selecciona un equipo`);
+    if (!equipoId) {
+        req.session.notification = { type: 'danger', message: 'Por favor selecciona un equipo.' };
+        return res.redirect(`/admin/usuarios/${usuarioId}/edit`);
+    }
 
     try {
         await Equipo.addUser(equipoId, usuarioId);
-        res.redirect(`/admin/usuarios/${usuarioId}/edit?ok=Usuario agregado al equipo`);
+        req.session.notification = { type: 'success', message: 'Usuario agregado al equipo correctamente.' };
+        res.redirect(`/admin/usuarios/${usuarioId}/edit`);
     } catch (err) {
         console.error(err);
-        res.redirect(`/admin/usuarios/${usuarioId}/edit?error=No se pudo agregar el usuario al equipo`);
+        req.session.notification = { type: 'danger', message: 'No se pudo agregar el usuario al equipo.' };
+        res.redirect(`/admin/usuarios/${usuarioId}/edit`);
     }
 };
 
@@ -94,10 +105,12 @@ exports.removeEquipo = async (req, res) => {
 
     try {
         await Equipo.removeUser(equipoId, usuarioId);
-        res.redirect(`/admin/usuarios/${usuarioId}/edit?ok=Usuario quitado del equipo`);
+        req.session.notification = { type: 'success', message: 'Usuario quitado del equipo correctamente.' };
+        res.redirect(`/admin/usuarios/${usuarioId}/edit`);
     } catch (err) {
         console.error(err);
-        res.redirect(`/admin/usuarios/${usuarioId}/edit?error=No se pudo quitar el usuario del equipo`);
+        req.session.notification = { type: 'danger', message: 'No se pudo quitar el usuario del equipo.' };
+        res.redirect(`/admin/usuarios/${usuarioId}/edit`);
     }
 };
 

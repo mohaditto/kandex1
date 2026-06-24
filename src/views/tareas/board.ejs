@@ -12,7 +12,7 @@
             <option value="Alta">Alta</option>
             <option value="Urgente">Urgente</option>
         </select>
-        <a href="/tareas/create" class="btn btn-success"><i class="bi bi-plus"></i> Nueva Tarea</a>
+        <a href="/tareas/create" class="btn btn-new"><i class="bi bi-plus"></i> Nueva Tarea</a>
     </div>
 </div>
 
@@ -25,7 +25,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="confirmMessage">
-                Estas seguro?
+                ¿Estas seguro?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmCancel">Cancelar</button>
@@ -52,7 +52,7 @@
                         <p><%= tarea.descripcion %></p>
                         <span class="badge priority-badge priority-<%= tarea.prioridad %>" style="background-color: <%= prioridadColor %>"><%= tarea.prioridad %></span>
                         <div class="mt-2 d-flex gap-2">
-                            <a href="/tareas/<%= tarea.id %>/comentarios" class="btn btn-sm btn-info"><i class="bi bi-chat-dots"></i> Comentarios</a>
+                            <a href="/tareas/<%= tarea.id %>/comentarios" class="btn btn-new"><i class="bi bi-chat-dots"></i> Comentarios</a>
                             <a href="/tareas/edit/<%= tarea.id %>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                             <a href="/tareas/delete/<%= tarea.id %>" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
                         </div>
